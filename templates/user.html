@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Trang User</title>
+  </head>
+  <body>
+    <h2>Chào mừng User</h2>
+    <p id="user-info"></p>
+    <button onclick="logout()">Đăng xuất</button>
+
+    <script>
+      async function checkAccess() {
+        let token = sessionStorage.getItem("token");
+        let role = sessionStorage.getItem("role");
+
+        if (!token || role !== "user") {
+          alert("Bạn không có quyền truy cập!");
+          window.location.href = "index.html";
+          return;
+        }
+
+        let response = await fetch("http://127.0.0.1:5000/profile", {
+          method: "GET",
+          headers: { Authorization: "Bearer " + token },
+        });
+
+        let data = await response.json();
+        document.getElementById("user-info").innerText = data.msg;
+      }
+
+      function logout() {
+        sessionStorage.clear();
+        window.location.href = "index.html";
+      }
+
+      checkAccess();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Trang Admin</title>
+  </head>
+  <body>
+    <h2>Chào mừng Admin</h2>
+    <p id="admin-info"></p>
+    <button onclick="logout()">Đăng xuất</button>
+
+    <script>
+      async function checkAccess() {  
+        let token = sessionStorage.getItem("token");
+        let response = await fetch("/admin", {
+          method: "GET",
+          headers: { Authorization: "Bearer " + token },
+        });
+        data = await response.json();
+        document.getElementById("admin-info").innerText = data.msg;
+      }
+
+      function logout() {
+        sessionStorage.clear();
+        window.location.href = "index.html";
+      }
+
+      checkAccess();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Đăng nhập</title>
+  </head>
+  <body>
+    <h2>Đăng nhập</h2>
+    <input type="text" id="username" placeholder="Tên đăng nhập" />
+    <input type="password" id="password" placeholder="Mật khẩu" />
+    <button onclick="login()">Đăng nhập</button>
+    <p id="result"></p>
+    <a id="redirect-link" href="./admin.html">Đi đến trang</a>
+    <script>
+      async function login() {
+        let username = document.getElementById("username").value;
+        let password = document.getElementById("password").value;
+
+        let response = await fetch("/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username, password }),
+        });
+
+        let data = await response.json();
+
+        if (data.access_token) {
+          sessionStorage.setItem("token", data.access_token);
+          sessionStorage.setItem("role", data.role);
+
+          let token = sessionStorage.getItem("token");
+          alert("Token nhận được: " + token);
+
+          let check_token = await fetch("/check_token", {
+            method: "GET",
+            headers: { Authorization: "Bearer " + token },
+          });
+          token_ch=await check_token.json();
+          if (token_ch.redirect) {
+            window.location.href = token_ch.redirect; // Chuyển hướng trang web
+          }
+        } else {
+          document.getElementById("result").innerText = data.msg;
+        }
+      }
+    </script>
+  </body>
+</html>
