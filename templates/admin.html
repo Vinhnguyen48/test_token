@@ -6,27 +6,51 @@
     <title>Trang Admin</title>
   </head>
   <body>
-    <h2>Chào mừng Admin</h2>
+    <h2>Chào admin</h2>
     <p id="admin-info"></p>
     <button onclick="logout()">Đăng xuất</button>
 
     <script>
-      async function checkAccess() {  
+      async function checkAccess() {
         let token = sessionStorage.getItem("token");
+        if (!token) {
+          window.location.href = "/";
+          return;
+        }
+
         let response = await fetch("/admin", {
           method: "GET",
           headers: { Authorization: "Bearer " + token },
         });
-        data = await response.json();
-        document.getElementById("admin-info").innerText = data.msg;
-      }
 
-      function logout() {
-        sessionStorage.clear();
-        window.location.href = "index.html";
+        if (response.ok) {
+          let data = await response.json();
+          document.getElementById("admin-info").innerText = data.msg;
+        } else {
+          alert("Lỗi khi kiểm tra quyền truy cập!");
+          window.location.href = "/";
+        }
       }
+      async function logout() {
+        let token = sessionStorage.getItem("token");
 
-      checkAccess();
+        let response = await fetch("/logout", {
+          method: "POST",
+          headers: {
+            Authorization: "Bearer " + token,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({}), 
+        });
+
+        if (response.ok) {
+          alert("Đăng xuất thành công!");
+          sessionStorage.removeItem("token");
+          window.location.href = "/";
+        } else {
+          alert("Lỗi khi đăng xuất: " + response.status);
+        }
+      }
     </script>
   </body>
 </html>

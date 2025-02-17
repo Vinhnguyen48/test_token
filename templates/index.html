@@ -11,7 +11,6 @@
     <input type="password" id="password" placeholder="Mật khẩu" />
     <button onclick="login()">Đăng nhập</button>
     <p id="result"></p>
-    <a id="redirect-link" href="./admin.html">Đi đến trang</a>
     <script>
       async function login() {
         let username = document.getElementById("username").value;
@@ -24,22 +23,26 @@
         });
 
         let data = await response.json();
-
+         
+        
         if (data.access_token) {
           sessionStorage.setItem("token", data.access_token);
           sessionStorage.setItem("role", data.role);
-
+              
           let token = sessionStorage.getItem("token");
           alert("Token nhận được: " + token);
 
           let check_token = await fetch("/check_token", {
             method: "GET",
             headers: { Authorization: "Bearer " + token },
-          });
-          token_ch=await check_token.json();
-          if (token_ch.redirect) {
-            window.location.href = token_ch.redirect; // Chuyển hướng trang web
-          }
+          })
+            .then((response) => response.text()) // Lấy HTML
+            .then((html) => {
+              document.open(); // Mở tài liệu mới
+              document.write(html); // Ghi nội dung HTML mới
+              document.close(); // Hiển thị nội dung HTML
+            })
+            .catch((error) => console.error("Error:", error));
         } else {
           document.getElementById("result").innerText = data.msg;
         }
